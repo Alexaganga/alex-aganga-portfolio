@@ -1,9 +1,15 @@
 
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
+
 import "./globals.css";
 
 const siteUrl = "https://alex-aganga-portfolio.vercel.app";
+
+const siteName = "Alex Aganga Portfolio";
+
+const siteDescription =
+  "Alex Aganga is a software engineer in Kenya building full-stack applications, AI-powered systems, secure digital products, and cloud infrastructure.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -13,26 +19,9 @@ export const metadata: Metadata = {
     template: "%s | Alex Aganga",
   },
 
-  description:
-    "Explore Alex Aganga's engineering portfolio: full-stack software development, AI systems, application security, DevSecOps and intelligent digital solutions.",
+  description: siteDescription,
 
-  applicationName: "ALEX.OS — Alex Aganga Portfolio",
-
-  keywords: [
-    "Alex Aganga",
-    "Software Engineer Kenya",
-    "Full Stack Developer",
-    "Next.js Developer",
-    "React Developer",
-    "TypeScript Developer",
-    "Backend Engineering",
-    "AI Engineering",
-    "Cybersecurity",
-    "DevSecOps",
-    "Cloud Infrastructure",
-    "Mobile App Development",
-    "Digital Engineering",
-  ],
+  applicationName: siteName,
 
   authors: [
     {
@@ -44,6 +33,23 @@ export const metadata: Metadata = {
   publisher: "Alex Aganga",
   category: "technology",
 
+  keywords: [
+    "Alex Aganga",
+    "Software Engineer Kenya",
+    "Full Stack Developer",
+    "Next.js Developer",
+    "React Developer",
+    "TypeScript Developer",
+    "Backend Engineering",
+    "AI Engineering",
+    "Artificial Intelligence",
+    "Cybersecurity",
+    "DevSecOps",
+    "Cloud Infrastructure",
+    "Mobile App Development",
+    "Digital Engineering",
+  ],
+
   alternates: {
     canonical: "/",
   },
@@ -52,21 +58,20 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_KE",
     url: siteUrl,
-    siteName: "ALEX.OS — Alex Aganga",
+    siteName,
 
-    title: "Alex Aganga | Software Engineer",
+    title: "Alex Aganga | Software Engineer & Digital Systems Engineer",
 
-    description:
-      "Software engineering, intelligent systems, cybersecurity and digital solutions.",
+    description: siteDescription,
   },
 
   twitter: {
-    card: "summary_large_image",
+    card: "summary",
 
     title: "Alex Aganga | Software Engineer",
 
     description:
-      "Explore my work in software engineering, AI, cybersecurity and DevSecOps.",
+      "Explore Alex Aganga's work in full-stack development, AI, cybersecurity, and DevSecOps.",
   },
 
   robots: {
@@ -96,7 +101,7 @@ export default function RootLayout({
   children: ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en-KE">
       <body>{children}</body>
     </html>
   );

@@ -300,6 +300,8 @@ const projects: PortfolioProject[] = [
 function PortfolioHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("#home");
+  const [pendingMobileNavigation, setPendingMobileNavigation] =
+    useState<string | null>(null);
   /* Identify the section currently in the visitor's view. */
   useEffect(() => {
     if (!("IntersectionObserver" in window)) {
@@ -353,9 +355,18 @@ function PortfolioHeader() {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [menuOpen]);
-  const handleNavigation = (href: string) => {
+  const handleNavigation = (href: string, fromMobileMenu = false) => {
     setActiveSection(href);
-    setMenuOpen(false);
+
+    if (fromMobileMenu) {
+      // Wait for the mobile menu to finish closing before calculating
+      // the destination position. This prevents taps being swallowed
+      // by the closing panel on smaller screens.
+      setPendingMobileNavigation(href);
+      setMenuOpen(false);
+      return;
+    }
+
     scrollToSection(href);
   };
   return (
@@ -402,7 +413,7 @@ function PortfolioHeader() {
           className="hidden items-center gap-0.5 lg:flex xl:gap-1"
           aria-label="Main navigation"
         >
-          {navItems.map((item, index) => {
+          {navItems.map((item) => {
             const isActive = activeSection === item.href;
             return (
               <motion.a
@@ -410,7 +421,12 @@ function PortfolioHeader() {
                 href={item.href}
                 onClick={(event) => { event.preventDefault(); handleNavigation(item.href); }}
                 whileHover={{ y: -3 }}
-                whileTap={{ scale: 0.96 }}
+                whileTap={{
+                  scale: 0.94,
+                  y: 1,
+                  color: "#C8FF00",
+                  textShadow: "0 0 14px rgba(200,255,0,0.55)",
+                }}
                 aria-current={isActive ? "location" : undefined}
                 className={`group relative flex min-h-[48px] items-center px-2.5 text-[12px] font-semibold uppercase tracking-[0.055em] transition-colors duration-300 xl:px-3 xl:text-[13px] ${
                   isActive
@@ -419,17 +435,7 @@ function PortfolioHeader() {
                 }`}
                 style={{ fontFamily: "var(--font-body)" }}
               >
-                <span className="relative z-10 flex items-center gap-1.5">
-                  <span
-                    className={`text-[9px] font-medium transition-colors ${
-                      isActive
-                        ? "text-[#C8FF00]"
-                        : "text-[#64708F] group-hover:text-[#4965FF]"
-                    }`}
-                    style={{ fontFamily: "var(--font-code)" }}
-                  >
-                    0{index + 1}
-                  </span>
+                <span className="relative z-10 font-extrabold">
                   {item.label}
                 </span>
                 {isActive && (
@@ -485,7 +491,7 @@ function PortfolioHeader() {
             boxShadow: "0 0 30px rgba(200,255,0,0.3)",
           }}
           whileTap={{ scale: 0.96 }}
-          className="hidden min-h-[46px] shrink-0 items-center justify-center gap-2 border border-[#C8FF00] bg-[#C8FF00] px-4 text-[11px] font-bold uppercase tracking-[0.08em] !text-[#04060F] transition-colors duration-300 hover:bg-[#DAFF4A] xl:flex"
+          className="hidden min-h-[46px] shrink-0 items-center justify-center gap-2 border border-[#C8FF00] bg-[#C8FF00] px-4 text-[13px] font-extrabold uppercase tracking-[0.08em] !text-[#04060F] transition-colors duration-300 hover:bg-[#DAFF4A] xl:flex"
           style={{
             fontFamily: "var(--font-code)",
             color: "#04060F",
@@ -541,7 +547,20 @@ function PortfolioHeader() {
         </motion.button>
       </div>
       {/* TABLET AND MOBILE NAVIGATION */}
-      <AnimatePresence initial={false}>
+      <AnimatePresence
+        initial={false}
+        onExitComplete={() => {
+          if (!pendingMobileNavigation) return;
+
+          const destination = pendingMobileNavigation;
+          setPendingMobileNavigation(null);
+
+          // Let the closed-menu layout settle before measuring the section.
+          window.requestAnimationFrame(() => {
+            scrollToSection(destination);
+          });
+        }}
+      >
         {menuOpen && (
           <motion.nav
             id="alex-mobile-navigation"
@@ -577,33 +596,37 @@ function PortfolioHeader() {
                     <motion.a
                       key={item.href}
                       href={item.href}
-                      onClick={(event) => { event.preventDefault(); handleNavigation(item.href); }}
+                      onClick={(event) => {
+                        event.preventDefault();
+                        handleNavigation(item.href, true);
+                      }}
                       initial={{ opacity: 0, x: -15 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{
                         duration: 0.25,
                         delay: index * 0.045,
                       }}
-                      whileTap={{ scale: 0.98 }}
-                      className={`flex min-h-[54px] items-center justify-between border px-4 transition-all duration-300 ${
+                      whileHover={{
+                        x: 3,
+                        borderColor: "rgba(200,255,0,0.65)",
+                      }}
+                      whileTap={{
+                        scale: 0.975,
+                        backgroundColor: "rgba(200,255,0,0.14)",
+                        borderColor: "#C8FF00",
+                        boxShadow: "0 0 24px rgba(200,255,0,0.2)",
+                      }}
+                      className={`flex min-h-[56px] items-center justify-between border px-5 transition-all duration-300 ${
                         isActive
                           ? "border-[#C8FF00]/60 bg-[#C8FF00]/[0.06] text-[#C8FF00]"
                           : "border-[#4965FF]/20 bg-[#0A1021] text-slate-300 hover:border-[#4965FF] hover:bg-[#0D1730] hover:text-white"
                       }`}
                     >
-                      <span className="flex items-center gap-4">
-                        <span
-                          className="text-[11px] font-medium text-[#C8FF00]/70"
-                          style={{ fontFamily: "var(--font-code)" }}
-                        >
-                          0{index + 1}
-                        </span>
-                        <span
-                          className="text-[13px] font-semibold uppercase tracking-[0.1em]"
-                          style={{ fontFamily: "var(--font-body)" }}
-                        >
-                          {item.label}
-                        </span>
+                      <span
+                        className="text-[15px] font-extrabold uppercase tracking-[0.1em]"
+                        style={{ fontFamily: "var(--font-body)" }}
+                      >
+                        {item.label}
                       </span>
                       <motion.span
                         animate={{
@@ -620,9 +643,19 @@ function PortfolioHeader() {
               </div>
               <motion.a
                 href="#contact"
-                onClick={(event) => { event.preventDefault(); handleNavigation("#contact"); }}
-                whileTap={{ scale: 0.97 }}
-                className="mt-5 flex min-h-[54px] items-center justify-between bg-[#C8FF00] px-5 text-[12px] font-bold uppercase tracking-[0.12em] !text-[#04060F]"
+                onClick={(event) => {
+                  event.preventDefault();
+                  handleNavigation("#contact", true);
+                }}
+                whileHover={{
+                  boxShadow: "0 0 28px rgba(200,255,0,0.35)",
+                }}
+                whileTap={{
+                  scale: 0.97,
+                  backgroundColor: "#DAFF4A",
+                  boxShadow: "0 0 32px rgba(200,255,0,0.45)",
+                }}
+                className="mt-5 flex min-h-[56px] items-center justify-between bg-[#C8FF00] px-5 text-[14px] font-extrabold uppercase tracking-[0.12em] !text-[#04060F]"
                 style={{
                   fontFamily: "var(--font-code)",
                   color: "#04060F",
@@ -1023,6 +1056,12 @@ export default function Home() {
           }
 
           .site-root .contact-email-address {
+            color: #E2E8F0 !important;
+            font-family: var(--font-body) !important;
+            font-size: 0.96rem !important;
+            font-weight: 750 !important;
+            letter-spacing: 0 !important;
+            text-transform: lowercase !important;
             overflow-wrap: anywhere;
           }
 
@@ -1053,13 +1092,53 @@ export default function Home() {
           }
 
           .site-root .site-header nav[aria-label="Main navigation"] a {
-            font-size: 0.88rem !important;
-            font-weight: 750 !important;
+            font-size: 0.95rem !important;
+            font-weight: 800 !important;
+            letter-spacing: 0.065em;
           }
 
           .site-root .site-header nav[aria-label="Mobile navigation"] a {
-            font-size: 1rem !important;
-            font-weight: 750 !important;
+            font-size: 1.02rem !important;
+            font-weight: 800 !important;
+          }
+
+          .site-root .site-header nav a:focus-visible,
+          .site-root .site-header button:focus-visible,
+          .site-root .hud-button:focus-visible,
+          .site-root .project-link:focus-visible,
+          .site-root .project-expand:focus-visible,
+          .site-root .footer-inner a:focus-visible {
+            outline: 2px solid #C8FF00 !important;
+            outline-offset: 4px;
+            box-shadow: 0 0 22px rgba(200, 255, 0, 0.24);
+          }
+
+          .site-root .hud-button,
+          .site-root .project-link,
+          .site-root .project-expand,
+          .site-root .footer-inner a {
+            -webkit-tap-highlight-color: transparent;
+            transition:
+              transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
+              box-shadow 180ms ease,
+              filter 180ms ease,
+              color 180ms ease,
+              background-color 180ms ease;
+          }
+
+          .site-root .hud-button:active,
+          .site-root .project-link:active,
+          .site-root .project-expand:active,
+          .site-root .footer-inner a:active {
+            transform: translateY(1px) scale(0.97);
+            filter: brightness(1.12);
+            box-shadow: 0 0 22px rgba(200, 255, 0, 0.22);
+          }
+
+          .site-root .hud-button,
+          .site-root .project-link,
+          .site-root .project-expand {
+            font-weight: 800 !important;
           }
 
           @media (max-width: 640px) {
