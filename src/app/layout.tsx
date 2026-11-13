@@ -63,15 +63,24 @@ export const metadata: Metadata = {
     title: "Alex Aganga | Software Engineer & Digital Systems Engineer",
 
     description: siteDescription,
+    images: [
+      {
+        url: "/images/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Alex Aganga — Engineering Portfolio",
+      },
+    ],
   },
 
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
 
     title: "Alex Aganga | Software Engineer",
 
     description:
       "Explore Alex Aganga's work in full-stack development, AI, cybersecurity, and DevSecOps.",
+    images: ["/images/og-image.png"],
   },
 
   robots: {
@@ -100,8 +109,46 @@ export default function RootLayout({
 }: Readonly<{
   children: ReactNode;
 }>) {
+  const personSchema = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: "Alex Aganga Nyokwoyo",
+    url: siteUrl,
+    jobTitle: "Full-Stack, Mobile & DevOps Software Developer",
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Nairobi",
+      addressCountry: "KE",
+    },
+    sameAs: [
+      "https://github.com/Alexaganga",
+      "https://www.linkedin.com/in/alex-aganga-a5459a272/",
+      "https://x.com/AgangaAlex",
+      "https://www.tiktok.com/@alexmoustapha?lang=en",
+    ],
+    knowsAbout: [
+      "Full-Stack Development",
+      "Next.js",
+      "React",
+      "TypeScript",
+      "Node.js",
+      "Laravel",
+      "Flutter",
+      "DevOps",
+      "Docker",
+      "PostgreSQL",
+      "M-Pesa API",
+    ],
+  };
+
   return (
     <html lang="en-KE">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}
+        />
+      </head>
       <body>{children}</body>
     </html>
   );
